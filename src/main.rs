@@ -13,6 +13,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             .item("create", "Create connection", "")
 
             .item("get_devices", "Get devices", "")
+            .item("get_props", "Get properties", "")
             .item("exit", "Exit", "")
             .interact()?;
         match selected {
@@ -34,6 +35,27 @@ fn main() -> Result<(), Box<dyn Error>> {
                 if result.is_ok() {
                     let devices = result.unwrap();
                     log::info(format!("Devices: {:?}", devices))?;
+                } else {
+                    log::error(format!("Bad response: {}", result.unwrap_err()))?;
+                }
+            }
+            "get_props" => {
+                let id : String = input("ID")
+                    .placeholder("some id")
+                    .validate(|input: &String| {
+                        if input.is_empty() {
+                            Err("Please enter valid address")
+                        } else {
+                            Ok(())
+                        }
+                    })
+                    .interact()?;
+                let mut v = Vec::new();
+                v.push("Device".to_string());
+                let result = conn.get_parameter_values(id, v);
+                if result.is_ok() {
+                    let res = result.unwrap();
+                    log::info(format!("Result: {:?}", res))?;
                 } else {
                     log::error(format!("Bad response: {}", result.unwrap_err()))?;
                 }
